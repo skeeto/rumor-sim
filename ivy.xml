@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ivy-module version="2.0">
+  <info organisation="com.nullprogram" module="sample-java-project"/>
+  <configurations>
+    <conf name="default"/>
+    <conf name="build" extends="default" visibility="private"/>
+    <conf name="test" extends="build" visibility="private"/>
+  </configurations>
+  <dependencies>
+    <dependency org="org.projectlombok" name="lombok" rev="0.10.4"
+                conf="build->default"/>
+  </dependencies>
+</ivy-module>
