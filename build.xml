@@ -52,6 +52,22 @@
     </java>
   </target>
 
+  <target name="javadoc" depends="resolve,compile"
+          description="Generate documentation.">
+    <taskdef classname="lombok.delombok.ant.DelombokTask" name="delombok"
+             classpathref="build.classpath"/>
+    <delombok verbose="true" to="${build.dir}/src" from="${src.dir}">
+      <classpath refid="build.classpath"/>
+    </delombok>
+    <javadoc destdir="${dist.dir}/javadoc"
+             link="http://download.oracle.com/javase/6/docs/api/"
+             sourcepath="${build.dir}/src"
+             Doctitle="${ant.project.name} ${version}"
+             Windowtitle="${ant.project.name} ${version}">
+      <classpath refid="build.classpath"/>
+    </javadoc>
+  </target>
+
   <target name="clean" description="Delete all generated files.">
     <delete dir="${build.dir}"/>
     <delete dir="${dist.dir}"/>
