@@ -56,4 +56,34 @@
     <delete dir="${build.dir}"/>
     <delete dir="${dist.dir}"/>
   </target>
+
+  <!-- Unit testing (JUnit) -->
+
+  <target name="test-compile" depends="compile">
+    <mkdir dir="${build.dir}/test"/>
+    <javac srcdir="${test.dir}" destdir="${build.dir}/test"
+           optimize="on" debug="on" deprecation="on"
+           classpath="${build.dir}/classes" includeantruntime="no">
+      <compilerarg value="-Xlint"/>
+      <classpath refid="build.classpath"/>
+      <classpath refid="test.classpath"/>
+    </javac>
+    <copy todir="${build.dir}/test">
+      <fileset dir="${test.dir}" excludes="**/*.java"/>
+    </copy>
+  </target>
+
+  <target name="test" depends="test-compile" description="Run the unit tests.">
+    <junit fork="yes">
+      <classpath>
+        <pathelement path="${build.dir}/classes"/>
+        <pathelement path="${build.dir}/test"/>
+        <path refid="test.classpath"/>
+      </classpath>
+      <batchtest>
+        <formatter type="brief" usefile="false"/>
+        <fileset dir="${build.dir}/test"/>
+      </batchtest>
+    </junit>
+  </target>
 </project>
