@@ -1,6 +1,11 @@
 package rumor;
 
 import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Executors;
 import lombok.Data;
 
 /**
@@ -42,7 +47,14 @@ import lombok.Data;
  * </ul>
  */
 @Data
-public class Rumor implements Runnable {
+public class Rumor implements Callable<Rumor> {
+
+    /** The number of threads to use. */
+    private static final int NTHREADS =
+        Runtime.getRuntime().availableProcessors();
+
+    /** Executor for running trials. */
+    public static final Executor EXEC = Executors.newFixedThreadPool(NTHREADS);
 
     /**
      * Run a number of trials based on input arguments.
@@ -52,10 +64,18 @@ public class Rumor implements Runnable {
         try {
             int n = Integer.parseInt(args[0]);
             int trials = args.length > 1 ? Integer.parseInt(args[1]) : 1;
+            CompletionService<Rumor> service =
+                new ExecutorCompletionService<Rumor>(EXEC);
             for (int i = 0; i < trials; i++) {
-                Rumor rumor = new Rumor(n);
-                rumor.run();
-                System.out.println(rumor);
+                service.submit(new Rumor(n));
+            }
+            for (int i = 0; i < trials; i++) {
+                try {
+                    System.out.println(service.take().get());
+                } catch (Exception e) {
+                    System.out.println(e);
+                    System.exit(-1);
+                }
             }
         } catch (NumberFormatException e) {
             usage();
@@ -64,6 +84,7 @@ public class Rumor implements Runnable {
         } catch (ArrayIndexOutOfBoundsException e) {
             usage();
         }
+        System.exit(0);
     }
 
     /**
@@ -86,9 +107,10 @@ public class Rumor implements Runnable {
     /**
      * Simulate the spread of the rumor. This method should only be
      * run once per Rumor.
+     * @return this rumor
      */
     @Override
-    public void run() {
+    public Rumor call() {
         Random rng = new Random();
         Person[] people = new Person[n];
         people[0] = new Person(Mode.SPREADER);
@@ -114,6 +136,7 @@ public class Rumor implements Runnable {
             }
         }
         knowing = know / (1d * n);
+        return this;
     }
 
     /**
