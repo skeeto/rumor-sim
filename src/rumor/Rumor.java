@@ -2,10 +2,6 @@ package rumor;
 
 import java.util.Random;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.Executors;
 import lombok.Data;
 
 /**
@@ -48,52 +44,6 @@ import lombok.Data;
  */
 @Data
 public class Rumor implements Callable<Rumor> {
-
-    /** The number of threads to use. */
-    private static final int NTHREADS =
-        Runtime.getRuntime().availableProcessors();
-
-    /** Executor for running trials. */
-    public static final Executor EXEC = Executors.newFixedThreadPool(NTHREADS);
-
-    /**
-     * Run a number of trials based on input arguments.
-     * @param args  command line arguments
-     */
-    public static void main(String[] args) {
-        try {
-            int n = Integer.parseInt(args[0]);
-            int trials = args.length > 1 ? Integer.parseInt(args[1]) : 1;
-            CompletionService<Rumor> service =
-                new ExecutorCompletionService<Rumor>(EXEC);
-            for (int i = 0; i < trials; i++) {
-                service.submit(new Rumor(n));
-            }
-            for (int i = 0; i < trials; i++) {
-                try {
-                    System.out.println(service.take().get());
-                } catch (Exception e) {
-                    System.out.println(e);
-                    System.exit(-1);
-                }
-            }
-        } catch (NumberFormatException e) {
-            usage();
-        } catch (NullPointerException e) {
-            usage();
-        } catch (ArrayIndexOutOfBoundsException e) {
-            usage();
-        }
-        System.exit(0);
-    }
-
-    /**
-     * Print usage info and exit with failure.
-     */
-    private static void usage() {
-        System.out.println("Usage: rumor n [trials]");
-        System.exit(-1);
-    }
 
     /** The number of people. */
     private final int n;
