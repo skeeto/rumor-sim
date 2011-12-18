@@ -18,27 +18,33 @@ public class Person {
     /**
      * Meet with another person and possibly spread the rumor.
      * @param person  the other person
+     * @return true if either person's state changed
      */
-    public void meet(final Person person) {
+    public boolean meet(final Person person) {
         if (this.mode == Mode.IGNORANT) {
             if (person.mode == Mode.SPREADER) {
                 /* Learn the rumor. */
                 setMode(Mode.SPREADER);
+                return true;
             }
         } else if (this.mode == Mode.SPREADER) {
             if (person.mode == Mode.STIFLER || person.mode == Mode.SPREADER) {
                 /* Stifle the rumor. */
                 setMode(Mode.STIFLER);
                 person.setMode(Mode.STIFLER);
+                return true;
             } else if (person.mode == Mode.IGNORANT) {
                 /* Spread the rumor. */
                 person.setMode(Mode.SPREADER);
+                return true;
             }
         } else if (this.mode == Mode.STIFLER) {
             if (person.mode == Mode.SPREADER) {
                 /* Stifle the rumor. */
                 person.setMode(Mode.STIFLER);
+                return true;
             }
         }
+        return false;
     }
 }

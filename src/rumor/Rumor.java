@@ -69,12 +69,15 @@ public class Rumor implements Callable<Rumor> {
         }
 
         /* Meet pairs of people. */
-        while (spreading(people)) {
+        boolean spreading = true;
+        while (spreading) {
             Person a = people[rng.nextInt(n)];
             Person b = people[rng.nextInt(n)];
             if (a != b) {
-                a.meet(b);
                 meetups++;
+                if (a.meet(b)) {
+                    spreading = spreading(people);
+                }
             }
         }
 
