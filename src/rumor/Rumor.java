@@ -1,8 +1,10 @@
 package rumor;
 
+import java.util.Observable;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Write a program that simulates the spreading of a rumor among a
@@ -43,7 +45,8 @@ import lombok.Data;
  * </ul>
  */
 @Data
-public class Rumor implements Callable<Rumor> {
+@EqualsAndHashCode(callSuper = false)
+public class Rumor extends Observable implements Callable<Rumor> {
 
     /** The number of people. */
     private final int n;
@@ -67,6 +70,8 @@ public class Rumor implements Callable<Rumor> {
         for (int i = 1; i < n; i++) {
             people[i] = new Person(Mode.IGNORANT);
         }
+        setChanged();
+        notifyObservers(people);
 
         /* Meet pairs of people. */
         boolean spreading = true;
@@ -77,6 +82,8 @@ public class Rumor implements Callable<Rumor> {
                 meetups++;
                 if (a.meet(b)) {
                     spreading = spreading(people);
+                    setChanged();
+                    notifyObservers(people);
                 }
             }
         }
