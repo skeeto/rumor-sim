@@ -1,5 +1,8 @@
 package rumor;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -12,6 +15,15 @@ import java.util.concurrent.Executors;
  */
 public class Launcher {
 
+    @Parameter(names = {"--trials", "-t"}, description = "Number of trials.")
+    private int trials = 1;
+
+    @Parameter(names = "-n", description = "Population size.")
+    private int n = 10000;
+
+    @Parameter(names = "--record", description = "Plot state images.")
+    private boolean record = false;
+
     /** The number of threads to use. */
     private static final int NTHREADS =
         Runtime.getRuntime().availableProcessors();
@@ -22,20 +34,28 @@ public class Launcher {
      */
     public static void main(String[] args) {
         try {
-            int n = Integer.parseInt(args[0]);
-            int trials = args.length > 1 ? Integer.parseInt(args[1]) : 1;
+            /* Parse command line arguments. */
+            Launcher params = new Launcher();
+            new JCommander(params, args);
+
+            /* Launch each rumer. */
             ExecutorService executor = Executors.newFixedThreadPool(NTHREADS);
             CompletionService<Rumor> service =
                 new ExecutorCompletionService<Rumor>(executor);
-            for (int i = 0; i < trials; i++) {
-                service.submit(new Rumor(n));
+            for (int i = 0; i < params.trials; i++) {
+                Rumor rumor = new Rumor(params.n);
+                if (params.record) {
+                    String name = String.format("rumor-%04d-", i);
+                    rumor.addObserver(new RumorDrawer(name, 100, 4));
+                }
+                service.submit(rumor);
             }
-            for (int i = 0; i < trials; i++) {
+
+            /* Gather up and print the results. */
+            for (int i = 0; i < params.trials; i++) {
                 System.out.println(service.take().get());
             }
             executor.shutdown();
-        } catch (NumberFormatException e) {
-            usage();
         } catch (NullPointerException e) {
             usage();
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -43,9 +63,12 @@ public class Launcher {
         } catch (InterruptedException e) {
             System.out.println(e);
             System.exit(-1);
+        } catch (ParameterException e) {
+            System.out.println("error: " + e.getMessage());
+            usage();
         } catch (ExecutionException e) {
             System.out.println(e);
-            System.exit(-1);
+            usage();
         }
     }
 
@@ -53,7 +76,7 @@ public class Launcher {
      * Print usage info and exit with failure.
      */
     private static void usage() {
-        System.out.println("Usage: rumor n [trials]");
+        new JCommander(new Launcher()).usage();
         System.exit(-1);
     }
 

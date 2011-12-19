@@ -43,12 +43,21 @@
         <attribute name="Main-Class" value="${main.class}"/>
       </manifest>
     </jar>
+    <jar destfile="${dist.dir}/${base.name}-all.jar"
+         basedir="${build.dir}/classes">
+      <zipgroupfileset refid="runtime.fileset"/>
+      <manifest>
+        <attribute name="Main-Class" value="${main.class}"/>
+      </manifest>
+    </jar>
   </target>
 
   <target name="run" depends="compile" description="Run the application.">
     <java classname="${main.class}" classpath="${build.dir}/classes">
       <classpath refid="build.classpath"/>
+      <arg value="-n"/>
       <arg value="10000"/>
+      <arg value="-t"/>
       <arg value="10"/>
     </java>
   </target>
