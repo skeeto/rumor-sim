@@ -24,6 +24,12 @@ public class Launcher {
     @Parameter(names = "--record", description = "Plot state images.")
     private boolean record = false;
 
+    @Parameter(names = "--scale", description = "Scale of plotted images.")
+    private int scale = 4;
+
+    @Parameter(names = "--width", description = "Width of plotted images.")
+    private int width = 100;
+
     /** The number of threads to use. */
     private static final int NTHREADS =
         Runtime.getRuntime().availableProcessors();
@@ -46,7 +52,8 @@ public class Launcher {
                 Rumor rumor = new Rumor(params.n);
                 if (params.record) {
                     String name = String.format("rumor-%04d-", i);
-                    rumor.addObserver(new RumorDrawer(name, 100, 4));
+                    rumor.addObserver(new RumorDrawer(name, params.width,
+                                                      params.scale));
                 }
                 service.submit(rumor);
             }
