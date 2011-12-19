@@ -52,7 +52,7 @@ public class Rumor extends Observable implements Callable<Rumor> {
     private final int n;
 
     /** The final number of meetups. */
-    private int meetups = 0;
+    private long meetups = 0;
 
     /** The percentage of people in-the-know (0 - 1). */
     private double knowing;
